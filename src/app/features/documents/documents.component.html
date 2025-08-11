@@ -1,0 +1,205 @@
+<div class="documents-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>folder</mat-icon>
+        My Documents
+      </h1>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="exportDocumentsList()" [disabled]="filteredDocuments.length === 0">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+        <button mat-raised-button color="primary" routerLink="/documents/upload" *ngIf="canManageDocuments()">
+          <mat-icon>upload_file</mat-icon>
+          Upload Documents
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search documents</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search by filename">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="status-filter">
+          <mat-label>Filter by status</mat-label>
+          <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusFilterChange()">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="type-filter">
+          <mat-label>Filter by type</mat-label>
+          <mat-select [(value)]="selectedMimeType" (selectionChange)="onMimeTypeFilterChange()">
+            <mat-option *ngFor="let type of mimeTypeOptions" [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <div class="results-info">
+          <span class="results-count">{{ filteredDocuments.length }} of {{ documents.length }} documents</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Documents Table -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <app-loading-spinner></app-loading-spinner>
+      </div>
+      
+      <div *ngIf="!isLoading && filteredDocuments.length === 0" class="empty-state">
+        <mat-icon>folder_open</mat-icon>
+        <h3 *ngIf="searchTerm || selectedStatus !== 'ALL' || selectedMimeType !== 'ALL'">No documents match your filters</h3>
+        <h3 *ngIf="!searchTerm && selectedStatus === 'ALL' && selectedMimeType === 'ALL' && documents.length === 0">No documents uploaded yet</h3>
+        <p *ngIf="searchTerm || selectedStatus !== 'ALL' || selectedMimeType !== 'ALL'">
+          Try adjusting your search criteria or filters.
+        </p>
+        <p *ngIf="!searchTerm && selectedStatus === 'ALL' && selectedMimeType === 'ALL' && documents.length === 0">
+          Upload your first document to get started with the document management system.
+        </p>
+        <button mat-raised-button color="primary" routerLink="/documents/upload" 
+                *ngIf="canManageDocuments() && documents.length === 0">
+          <mat-icon>upload_file</mat-icon>
+          Upload Your First Document
+        </button>
+      </div>
+      
+      <div *ngIf="!isLoading && filteredDocuments.length > 0" class="table-container">
+        <table mat-table [dataSource]="filteredDocuments" class="documents-table" matSort>
+          <!-- File Name Column -->
+          <ng-container matColumnDef="fileName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>File Name</th>
+            <td mat-cell *matCellDef="let document">
+              <div class="file-info">
+                <mat-icon class="file-icon">{{ getMimeTypeIcon(document.mimeType) }}</mat-icon>
+                <div class="file-details">
+                  <div class="file-name" [title]="document.fileName">{{ document.fileName }}</div>
+                  <div class="file-id">ID: {{ document.id.slice(0, 8) }}...</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- File Size Column -->
+          <ng-container matColumnDef="fileSize">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
+            <td mat-cell *matCellDef="let document">
+              {{ formatFileSize(document.fileSize) }}
+            </td>
+          </ng-container>
+
+          <!-- MIME Type Column -->
+          <ng-container matColumnDef="mimeType">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let document">
+              <div class="mime-type-cell">
+                <span class="mime-type-label">{{ document.mimeType.split('/')[1]?.toUpperCase() || 'UNKNOWN' }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let document">
+              <mat-chip [color]="getStatusChipColor(document.status)" selected>
+                {{ document.status | titlecase }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Created At Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded</th>
+            <td mat-cell *matCellDef="let document">
+              <div class="date-cell">
+                <div class="date-primary">{{ document.createdAt | date:'mediumDate' }}</div>
+                <div class="date-secondary">{{ document.createdAt | date:'shortTime' }}</div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let document">
+              <div class="actions-cell">
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-trigger">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="downloadDocument(document)">
+                    <mat-icon>download</mat-icon>
+                    <span>Download</span>
+                  </button>
+                  <button mat-menu-item (click)="triggerIngestion(document)" 
+                          [disabled]="!canTriggerIngestion(document)"
+                          *ngIf="canManageDocuments()">
+                    <mat-icon>sync</mat-icon>
+                    <span>Process</span>
+                  </button>
+                  <mat-divider *ngIf="canDeleteDocument()"></mat-divider>
+                  <button mat-menu-item (click)="deleteDocument(document)" 
+                          class="delete-action"
+                          *ngIf="canDeleteDocument()">
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Document Statistics -->
+  <div class="stats-section" *ngIf="documents.length > 0">
+    <mat-card class="stats-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>analytics</mat-icon>
+          Document Statistics
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">{{ documents.length }}</div>
+            <div class="stat-label">Total Documents</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getProcessedCount() }}</div>
+            <div class="stat-label">Processed</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getProcessingCount() }}</div>
+            <div class="stat-label">Processing</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getTotalSize() }}</div>
+            <div class="stat-label">Total Size</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

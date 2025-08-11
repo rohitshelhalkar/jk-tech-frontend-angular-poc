@@ -1,0 +1,173 @@
+<div class="upload-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      <mat-icon>cloud_upload</mat-icon>
+      Upload Documents
+    </h1>
+    <button mat-stroked-button (click)="goToDocuments()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Documents
+    </button>
+  </div>
+
+  <!-- Upload Area -->
+  <mat-card class="upload-area-card">
+    <mat-card-content>
+      <div 
+        class="upload-area"
+        [class.drag-over]="isDragOver"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
+        
+        <div class="upload-content">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <h3>Drop files here or click to browse</h3>
+          <p class="upload-description">
+            Supported formats: PDF, DOCX, TXT<br>
+            Maximum file size: 10MB<br>
+            Maximum files: {{ maxFiles }}
+          </p>
+          <input 
+            type="file" 
+            #fileInput
+            (change)="onFileSelected($event)"
+            [accept]="allowedTypes.join(',')"
+            multiple
+            style="display: none;">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="fileInput.click()"
+            [disabled]="isUploading">
+            <mat-icon>folder_open</mat-icon>
+            Browse Files
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- File List -->
+  <mat-card class="files-card" *ngIf="fileUploads.length > 0">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>list</mat-icon>
+        Selected Files ({{ fileUploads.length }})
+      </mat-card-title>
+      <div class="header-actions">
+        <button mat-button (click)="clearCompleted()" 
+                [disabled]="isUploading || !hasCompletedFiles()">
+          <mat-icon>clear_all</mat-icon>
+          Clear Completed
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="uploadAllFiles()"
+          [disabled]="!canUpload()">
+          <mat-icon>cloud_upload</mat-icon>
+          Upload All Files
+        </button>
+      </div>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="file-list">
+        <div 
+          class="file-item" 
+          *ngFor="let fileUpload of fileUploads; let i = index"
+          [class.uploading]="isUploading(fileUpload)"
+          [class.success]="isSuccess(fileUpload)"
+          [class.error]="isError(fileUpload)">
+          
+          <div class="file-info">
+            <mat-icon class="file-icon">{{ getFileTypeIcon(fileUpload.file) }}</mat-icon>
+            <div class="file-details">
+              <div class="file-name">{{ fileUpload.file.name }}</div>
+              <div class="file-meta">
+                {{ formatFileSize(fileUpload.file.size) }} • {{ fileUpload.file.type }}
+              </div>
+              <div class="file-error" *ngIf="isError(fileUpload) && fileUpload.error">
+                {{ fileUpload.error }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="file-status">
+            <mat-icon [style.color]="getStatusColor(fileUpload.status)">
+              {{ getStatusIcon(fileUpload.status) }}
+            </mat-icon>
+            <span class="status-text">{{ fileUpload.status | titlecase }}</span>
+          </div>
+          
+          <div class="file-actions">
+            <button 
+              mat-icon-button 
+              (click)="removeFile(i)"
+              [disabled]="isUploading(fileUpload)"
+              class="remove-button">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          
+          <!-- Progress bar -->
+          <div class="progress-container" *ngIf="showProgress(fileUpload)">
+            <mat-progress-bar 
+              [value]="fileUpload.progress"
+              [color]="isSuccess(fileUpload) ? 'accent' : 'primary'"
+              mode="determinate">
+            </mat-progress-bar>
+            <span class="progress-text">{{ fileUpload.progress }}%</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Upload Guidelines -->
+  <mat-card class="guidelines-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>info</mat-icon>
+        Upload Guidelines
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="guidelines-grid">
+        <div class="guideline-item">
+          <mat-icon>description</mat-icon>
+          <div class="guideline-content">
+            <h4>Supported Formats</h4>
+            <p>PDF, Microsoft Word (.docx), and Plain Text (.txt) files are supported for document processing.</p>
+          </div>
+        </div>
+        
+        <div class="guideline-item">
+          <mat-icon>storage</mat-icon>
+          <div class="guideline-content">
+            <h4>File Size Limits</h4>
+            <p>Each file must be under 10MB. Larger files may fail to upload or process correctly.</p>
+          </div>
+        </div>
+        
+        <div class="guideline-item">
+          <mat-icon>batch_prediction</mat-icon>
+          <div class="guideline-content">
+            <h4>Batch Processing</h4>
+            <p>Upload multiple files at once for efficient batch processing. Maximum {{ getMaxFiles() }} files per upload session.</p>
+          </div>
+        </div>
+        
+        <div class="guideline-item">
+          <mat-icon>security</mat-icon>
+          <div class="guideline-content">
+            <h4>Data Security</h4>
+            <p>All uploaded files are encrypted and stored securely. Only you and authorized users can access your documents.</p>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

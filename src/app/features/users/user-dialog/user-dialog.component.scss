@@ -1,0 +1,171 @@
+.dialog-container {
+  max-width: 500px;
+  width: 100%;
+}
+
+.dialog-header {
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    color: #333;
+    font-weight: 500;
+    
+    mat-icon {
+      color: #673ab7;
+    }
+  }
+}
+
+.dialog-content {
+  padding: 20px 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-field-full-width {
+  width: 100%;
+}
+
+.role-option {
+  padding: 8px 0;
+  
+  .role-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    
+    .role-label {
+      font-weight: 500;
+      color: #333;
+    }
+  }
+  
+  .role-description {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.3;
+  }
+}
+
+.role-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.role-admin {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  &.role-editor {
+    background-color: #ff9800;
+    color: white;
+  }
+  
+  &.role-viewer {
+    background-color: #4caf50;
+    color: white;
+  }
+}
+
+.role-info-section {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+  
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.role-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  
+  .role-permissions {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    flex: 1;
+  }
+}
+
+.dialog-actions {
+  padding: 16px 0 0 0;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 20px;
+  justify-content: flex-end;
+  gap: 12px;
+  
+  .cancel-button {
+    color: #666;
+  }
+  
+  .submit-button {
+    min-width: 120px;
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .dialog-container {
+    max-width: 100vw;
+    margin: 0;
+  }
+  
+  .dialog-content {
+    max-height: 60vh;
+  }
+  
+  .role-option .role-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .role-info-item {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  
+  .dialog-actions {
+    flex-direction: column-reverse;
+    
+    button {
+      width: 100%;
+    }
+  }
+}

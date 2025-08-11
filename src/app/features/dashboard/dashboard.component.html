@@ -1,0 +1,162 @@
+<div class="dashboard-container">
+  <!-- Welcome Header -->
+  <div class="welcome-header">
+    <h1 class="welcome-title">{{ getWelcomeMessage() }}</h1>
+    <div class="user-info" *ngIf="currentUser$ | async as user">
+      <span class="user-role-badge" [class]="'role-' + user.role.toLowerCase()">
+        {{ getRoleDisplayName(user.role) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Dashboard Stats -->
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ totalDocuments }}</div>
+            <div class="stat-label">Documents</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon processing">
+            <mat-icon>sync</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ activeIngestionJobs.length }}</div>
+            <div class="stat-label">Active Jobs</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon success">
+            <mat-icon>psychology</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ completedQueriesCount }}</div>
+            <div class="stat-label">Q&A Sessions</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Quick Actions -->
+  <mat-card class="actions-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>bolt</mat-icon>
+        Quick Actions
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="actions-grid">
+        <button
+          mat-raised-button
+          color="primary"
+          class="action-button"
+          *ngFor="let action of getFilteredActions()"
+          [routerLink]="action.route">
+          <div class="action-content">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            <div class="action-text">
+              <div class="action-title">{{ action.title }}</div>
+              <div class="action-description">{{ action.description }}</div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="dashboard-content">
+    <!-- Recent Documents -->
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>schedule</mat-icon>
+          Recent Documents
+        </mat-card-title>
+        <div class="header-actions">
+          <button mat-button routerLink="/documents">View All</button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="recentDocuments.length === 0" class="empty-state">
+          <mat-icon>folder_open</mat-icon>
+          <p>No documents uploaded yet</p>
+          <button mat-raised-button color="primary" routerLink="/documents/upload" *ngIf="hasRole([UserRole.ADMIN, UserRole.EDITOR])">
+            Upload Your First Document
+          </button>
+        </div>
+        
+        <div *ngIf="recentDocuments.length > 0" class="document-list">
+          <div class="document-item" *ngFor="let document of recentDocuments">
+            <div class="document-info">
+              <mat-icon class="document-icon">{{ document.mimeType?.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
+              <div class="document-details">
+                <div class="document-name">{{ document.fileName }}</div>
+                <div class="document-meta">
+                  {{ document.fileSize | number }} bytes • {{ document.createdAt | date:'short' }}
+                </div>
+              </div>
+            </div>
+            <div class="document-status">
+              <span [class]="'status-badge status-' + document.status.toLowerCase()">
+                {{ document.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Active Ingestion Jobs -->
+    <mat-card class="content-card" *ngIf="hasRole([UserRole.ADMIN, UserRole.EDITOR])">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>sync</mat-icon>
+          Processing Status
+        </mat-card-title>
+        <div class="header-actions">
+          <button mat-button routerLink="/ingestion">View All Jobs</button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="activeIngestionJobs.length === 0" class="empty-state">
+          <mat-icon>check_circle</mat-icon>
+          <p>All processing jobs completed</p>
+        </div>
+        
+        <div *ngIf="activeIngestionJobs.length > 0" class="jobs-list">
+          <div class="job-item" *ngFor="let job of activeIngestionJobs">
+            <div class="job-info">
+              <div class="job-name">{{ job.documentName }}</div>
+              <div class="job-status">{{ job.status | titlecase }}</div>
+            </div>
+            <div class="job-progress">
+              <mat-progress-bar 
+                [value]="getProgressBarValue(job)"
+                [color]="getProgressBarColor(job)"
+                mode="determinate">
+              </mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

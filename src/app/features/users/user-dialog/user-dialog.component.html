@@ -1,0 +1,108 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
+      {{ getTitle() }}
+    </h2>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="userForm" class="user-form">
+      <mat-form-field appearance="outline" class="form-field-full-width">
+        <mat-label>Full Name</mat-label>
+        <input 
+          matInput 
+          formControlName="name" 
+          type="text" 
+          placeholder="Enter full name"
+          autocomplete="name">
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+          {{ getNameErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field-full-width">
+        <mat-label>Email Address</mat-label>
+        <input 
+          matInput 
+          formControlName="email" 
+          type="email" 
+          placeholder="Enter email address"
+          autocomplete="email">
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+          {{ getEmailErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field-full-width" *ngIf="!isEdit">
+        <mat-label>Password</mat-label>
+        <input 
+          matInput 
+          formControlName="password" 
+          type="password" 
+          placeholder="Enter password"
+          autocomplete="new-password">
+        <mat-icon matSuffix>lock</mat-icon>
+        <mat-error *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+          {{ getPasswordErrorMessage() }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field-full-width">
+        <mat-label>Role</mat-label>
+        <mat-select formControlName="role">
+          <mat-option *ngFor="let role of roles" [value]="role.value">
+            <div class="role-option">
+              <div class="role-header">
+                <span class="role-label">{{ role.label }}</span>
+                <span [class]="'role-badge role-' + role.value.toLowerCase()">
+                  {{ role.value }}
+                </span>
+              </div>
+              <div class="role-description">{{ role.description }}</div>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>badge</mat-icon>
+      </mat-form-field>
+    </form>
+
+    <!-- Role Information -->
+    <div class="role-info-section">
+      <h4>
+        <mat-icon>info</mat-icon>
+        Role Permissions
+      </h4>
+      <div class="role-info-list">
+        <div class="role-info-item">
+          <span class="role-badge role-admin">ADMIN</span>
+          <span class="role-permissions">Full system access, user management, all document operations</span>
+        </div>
+        <div class="role-info-item">
+          <span class="role-badge role-editor">EDITOR</span>
+          <span class="role-permissions">Document upload, management, ingestion triggers, Q&A access</span>
+        </div>
+        <div class="role-info-item">
+          <span class="role-badge role-viewer">VIEWER</span>
+          <span class="role-permissions">View own documents, download files, Q&A interface access</span>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()" class="cancel-button">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="userForm.invalid"
+      class="submit-button">
+      {{ isEdit ? 'Update User' : 'Create User' }}
+    </button>
+  </mat-dialog-actions>
+</div>

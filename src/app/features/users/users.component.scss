@@ -1,0 +1,294 @@
+.users-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 32px;
+      font-weight: 300;
+      color: #333;
+      
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #673ab7;
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+  }
+}
+
+.filters-card {
+  margin-bottom: 24px;
+  
+  .filters-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    
+    .search-field {
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .role-filter {
+      min-width: 180px;
+    }
+    
+    .results-info {
+      margin-left: auto;
+      
+      .results-count {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.table-card {
+  min-height: 400px;
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      color: #ccc;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      font-weight: 500;
+    }
+    
+    p {
+      margin: 0 0 20px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+}
+
+.users-table {
+  width: 100%;
+  
+  .mat-header-cell {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .mat-cell {
+    padding: 16px 8px;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e3f2fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #1976d2;
+      }
+    }
+    
+    .user-details {
+      .user-name {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 2px;
+      }
+      
+      .user-id {
+        font-size: 12px;
+        color: #666;
+        font-family: 'Courier New', monospace;
+      }
+    }
+  }
+  
+  .email-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .email-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #666;
+    }
+  }
+  
+  .date-cell {
+    .date-primary {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 2px;
+    }
+    
+    .date-secondary {
+      font-size: 12px;
+      color: #666;
+    }
+  }
+  
+  .actions-cell {
+    text-align: right;
+    
+    .menu-trigger {
+      color: #666;
+      
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+}
+
+// Menu styles
+:host ::ng-deep {
+  .delete-action {
+    color: #f44336 !important;
+    
+    mat-icon {
+      color: #f44336 !important;
+    }
+  }
+  
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+  
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .users-container {
+    padding: 16px;
+  }
+  
+  .page-header .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    
+    .page-title {
+      font-size: 24px;
+    }
+    
+    .header-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+  
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .search-field,
+    .role-filter {
+      min-width: auto;
+    }
+    
+    .results-info {
+      margin-left: 0;
+      text-align: center;
+    }
+  }
+  
+  .users-table {
+    .user-info {
+      .user-details {
+        .user-name {
+          font-size: 14px;
+        }
+        
+        .user-id {
+          font-size: 10px;
+        }
+      }
+    }
+    
+    .email-cell {
+      font-size: 14px;
+      
+      span {
+        word-break: break-all;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+    
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
