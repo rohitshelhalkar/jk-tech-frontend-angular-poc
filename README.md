@@ -259,33 +259,5 @@ Customize the theme in `src/styles.scss`:
 - **XSS Protection** - Angular's built-in sanitization
 - **CSRF Protection** - Implement CSRF tokens if needed
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Support
-
-For questions and support:
-- Create an issue in the repository
-- Review the troubleshooting section
-- Check the API documentation
-
-## 🎉 Acknowledgments
-
-- Angular team for the excellent framework
-- Angular Material for the beautiful UI components
-- NestJS team for the backend framework inspiration
-- Community contributors and testers
-
----
 
 **Built with ❤️ using Angular 17+ and Angular Material**

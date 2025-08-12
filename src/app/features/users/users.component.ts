@@ -158,7 +158,17 @@ export class UsersComponent implements OnInit {
   }
 
   updateUser(userId: string, userData: any): void {
-    this.userService.updateUser(userId, userData).subscribe({
+    // Filter userData to only include allowed fields: email, name, role, and status
+    const allowedFields = ['email', 'name', 'role', 'active'];
+    const filteredUserData: any = {};
+    
+    allowedFields.forEach(field => {
+      if (userData.hasOwnProperty(field) && userData[field] !== undefined && userData[field] !== null) {
+        filteredUserData[field] = userData[field];
+      }
+    });
+
+    this.userService.updateUser(userId, filteredUserData).subscribe({
       next: (updatedUser) => {
         const index = this.users.findIndex(u => u.id === userId);
         if (index !== -1) {

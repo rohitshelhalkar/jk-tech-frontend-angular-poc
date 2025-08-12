@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { User, UserRole } from '../../../core/models/user.model';
 
@@ -26,7 +27,8 @@ export interface UserDialogData {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatCheckboxModule
   ],
   templateUrl: './user-dialog.component.html',
   styleUrls: ['./user-dialog.component.scss']
@@ -51,12 +53,16 @@ export class UserDialogComponent {
     this.userForm = this.fb.group({
       name: [data.user?.name || '', [Validators.required, Validators.minLength(2)]],
       email: [data.user?.email || '', [Validators.required, Validators.email]],
-      role: [data.user?.role || UserRole.VIEWER, [Validators.required]]
+      role: [data.user?.role || UserRole.VIEWER, [Validators.required]],
+      active: [data.user?.active !== undefined ? data.user.active : true]
     });
 
     // Add password field for new users
     if (!this.isEdit) {
       this.userForm.addControl('password', this.fb.control('', [Validators.required, Validators.minLength(6)]));
+    } else {
+      // Disable email field in edit mode
+      this.userForm.get('email')?.disable();
     }
   }
 
@@ -66,7 +72,14 @@ export class UserDialogComponent {
 
   onSubmit(): void {
     if (this.userForm.valid) {
-      this.dialogRef.close(this.userForm.value);
+      const formData = { ...this.userForm.value };
+      
+      // For user updates, exclude the email field
+      if (this.isEdit && formData.hasOwnProperty('email')) {
+        delete formData.email;
+      }
+      
+      this.dialogRef.close(formData);
     } else {
       this.markFormGroupTouched();
     }

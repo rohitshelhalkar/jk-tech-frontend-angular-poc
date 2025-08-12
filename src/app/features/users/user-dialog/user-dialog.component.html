@@ -29,6 +29,7 @@
           formControlName="email" 
           type="email" 
           placeholder="Enter email address"
+          [disabled]="isEdit"
           autocomplete="email">
         <mat-icon matSuffix>email</mat-icon>
         <mat-error *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
@@ -67,6 +68,18 @@
         </mat-select>
         <mat-icon matSuffix>badge</mat-icon>
       </mat-form-field>
+
+      <div class="status-field" *ngIf="isEdit">
+        <mat-checkbox formControlName="active" color="primary">
+          <span class="status-label">
+            <mat-icon>{{ userForm.get('active')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+            User Account Active
+          </span>
+        </mat-checkbox>
+        <div class="status-description">
+          {{ userForm.get('active')?.value ? 'User can log in and access the system' : 'User cannot log in and access is denied' }}
+        </div>
+      </div>
     </form>
 
     <!-- Role Information -->
