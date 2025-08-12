@@ -1,0 +1,53 @@
+{
+  "jobs": [
+    {
+      "id": "job-1",
+      "documentId": "doc-1",
+      "userId": "user-1",
+      "status": "PENDING",
+      "documentName": "Research Document.pdf",
+      "startedAt": "2024-01-01T10:00:00Z",
+      "createdAt": "2024-01-01T10:00:00Z",
+      "updatedAt": "2024-01-01T10:00:00Z",
+      "document": {
+        "id": "doc-1",
+        "filename": "research.pdf",
+        "originalName": "Research Document.pdf",
+        "title": "Research Document"
+      },
+      "user": {
+        "id": "user-1",
+        "name": "Admin User",
+        "email": "admin@example.com"
+      }
+    },
+    {
+      "id": "job-2",
+      "documentId": "doc-2", 
+      "userId": "user-1",
+      "status": "COMPLETED",
+      "documentName": "Technical Manual.pdf",
+      "startedAt": "2024-01-01T09:00:00Z",
+      "completedAt": "2024-01-01T09:02:30Z",
+      "createdAt": "2024-01-01T09:00:00Z",
+      "updatedAt": "2024-01-01T09:02:30Z",
+      "document": {
+        "id": "doc-2",
+        "filename": "manual.pdf",
+        "originalName": "Technical Manual.pdf",
+        "title": "Technical Manual"
+      },
+      "user": {
+        "id": "user-1",
+        "name": "Admin User", 
+        "email": "admin@example.com"
+      }
+    }
+  ],
+  "pagination": {
+    "total": 2,
+    "page": 1,
+    "limit": 10,
+    "pages": 1
+  }
+}

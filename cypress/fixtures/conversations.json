@@ -1,0 +1,23 @@
+{
+  "conversations": [
+    {
+      "id": "1",
+      "title": "Document Analysis Discussion",
+      "userId": "1",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:30:00Z",
+      "messages": []
+    },
+    {
+      "id": "2", 
+      "title": "Technical Questions",
+      "userId": "1",
+      "createdAt": "2024-01-01T01:00:00Z",
+      "updatedAt": "2024-01-01T01:15:00Z",
+      "messages": []
+    }
+  ],
+  "total": 2,
+  "limit": 20,
+  "offset": 0
+}

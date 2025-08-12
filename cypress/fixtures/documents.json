@@ -1,0 +1,50 @@
+{
+  "documents": [
+    {
+      "id": "1",
+      "filename": "test-document-1.pdf",
+      "originalName": "Test Document 1.pdf",
+      "mimetype": "application/pdf",
+      "size": 1024000,
+      "filePath": "/uploads/test-document-1.pdf",
+      "title": "Test Document 1",
+      "description": "First test document for E2E testing",
+      "status": "PROCESSED",
+      "uploadedBy": "1",
+      "isDeleted": false,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z",
+      "user": {
+        "id": "1",
+        "name": "Admin User",
+        "email": "admin@example.com"
+      }
+    },
+    {
+      "id": "2",
+      "filename": "test-document-2.pdf",
+      "originalName": "Test Document 2.pdf",
+      "mimetype": "application/pdf",
+      "size": 2048000,
+      "filePath": "/uploads/test-document-2.pdf",
+      "title": "Test Document 2",
+      "description": "Second test document for E2E testing",
+      "status": "PROCESSING",
+      "uploadedBy": "2",
+      "isDeleted": false,
+      "createdAt": "2024-01-01T01:00:00Z",
+      "updatedAt": "2024-01-01T01:00:00Z",
+      "user": {
+        "id": "2",
+        "name": "Editor User",
+        "email": "editor@example.com"
+      }
+    }
+  ],
+  "pagination": {
+    "total": 2,
+    "page": 1,
+    "limit": 10,
+    "pages": 1
+  }
+}
