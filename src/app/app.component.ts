@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
     { path: '/users', icon: 'people', label: 'User Management', roles: ['ADMIN'] },
     { path: '/documents', icon: 'folder', label: 'Documents', roles: ['ADMIN', 'EDITOR', 'VIEWER'] },
     { path: '/ingestion', icon: 'sync', label: 'Ingestion', roles: ['ADMIN', 'EDITOR', 'VIEWER'] },
-    { path: '/qa', icon: 'question_answer', label: 'Q&A', roles: ['ADMIN', 'EDITOR', 'VIEWER'] }
+    { path: '/qna', icon: 'question_answer', label: 'Q&A', roles: ['ADMIN', 'EDITOR', 'VIEWER'] }
   ];
 
   constructor(

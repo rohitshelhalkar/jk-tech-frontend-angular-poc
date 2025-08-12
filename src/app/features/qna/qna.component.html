@@ -1,0 +1,249 @@
+<div class="qna-container">
+  <!-- Sidebar - Conversations List -->
+  <mat-sidenav-container class="qna-sidenav-container">
+    <mat-sidenav mode="side" opened class="conversations-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <mat-icon class="sidebar-icon">forum</mat-icon>
+          <h2>Q&A Conversations</h2>
+        </div>
+        <button 
+          mat-icon-button 
+          class="new-conversation-btn"
+          (click)="createNewConversation()"
+          matTooltip="New Conversation">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search conversations</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Search..."
+            autocomplete="off">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Conversations List -->
+      <div class="conversations-list">
+        <div *ngIf="isLoadingConversations" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading conversations...</p>
+        </div>
+
+        <div 
+          *ngFor="let conversation of conversations; trackBy: trackByConversationId"
+          class="conversation-item"
+          [class.selected]="selectedConversation?.id === conversation.id"
+          (click)="selectConversation(conversation)">
+          
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <h4 class="conversation-title">{{ getConversationTitle(conversation) }}</h4>
+              <button 
+                mat-icon-button 
+                class="delete-btn"
+                (click)="deleteConversation(conversation, $event)"
+                matTooltip="Delete Conversation">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+            
+            <p class="conversation-preview">{{ getConversationPreview(conversation) }}</p>
+            
+            <div class="conversation-meta">
+              <span class="conversation-date">
+                {{ conversation.updatedAt | date:'short' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoadingConversations && conversations.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">forum</mat-icon>
+          <h3>No Conversations</h3>
+          <p>Start your first conversation to begin asking questions about your documents.</p>
+          <button mat-raised-button color="primary" (click)="createNewConversation()">
+            <mat-icon>add</mat-icon>
+            New Conversation
+          </button>
+        </div>
+      </div>
+    </mat-sidenav>
+
+    <!-- Main Content Area -->
+    <mat-sidenav-content class="main-content">
+      <!-- Messages Area -->
+      <div class="messages-container" *ngIf="selectedConversation">
+        <!-- Header -->
+        <div class="messages-header">
+          <div class="conversation-info">
+            <h2>{{ getConversationTitle(selectedConversation) }}</h2>
+            <p class="conversation-subtitle">Ask questions about your uploaded documents</p>
+          </div>
+        </div>
+
+        <!-- Messages List -->
+        <div class="messages-content" #messagesContainer>
+          <div *ngIf="isLoadingMessages" class="loading-messages">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading conversation...</p>
+          </div>
+
+          <div *ngFor="let message of messages; trackBy: trackByMessageId" class="message-wrapper">
+            <!-- User Message -->
+            <div *ngIf="message.role === 'user'" class="message user-message">
+              <div class="message-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="message-content">
+                <div class="message-bubble user-bubble">
+                  <p>{{ message.content }}</p>
+                </div>
+                <div class="message-time">
+                  {{ message.createdAt | date:'short' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Assistant Message -->
+            <div *ngIf="message.role === 'assistant'" class="message assistant-message">
+              <div class="message-avatar">
+                <mat-icon>smart_toy</mat-icon>
+              </div>
+              <div class="message-content">
+                <div class="message-bubble assistant-bubble">
+                  <p>{{ message.content }}</p>
+                  
+                  <!-- Sources -->
+                  <div *ngIf="hasMessageSources(message)" class="message-sources">
+                    <div class="sources-header">
+                      <mat-icon>library_books</mat-icon>
+                      <span>Sources</span>
+                    </div>
+                    <div class="sources-list">
+                      <mat-chip-listbox class="sources-chips">
+                        <mat-chip-option 
+                          *ngFor="let source of getMessageSources(message)"
+                          [matTooltip]="source.content">
+                          <mat-icon>description</mat-icon>
+                          Document Chunk
+                        </mat-chip-option>
+                      </mat-chip-listbox>
+                    </div>
+                  </div>
+
+                  <!-- Metadata -->
+                  <div *ngIf="message.metadata" class="message-metadata">
+                    <div class="metadata-item" *ngIf="message.metadata.tokensUsed">
+                      <mat-icon>token</mat-icon>
+                      {{ message.metadata.tokensUsed }} tokens
+                    </div>
+                    <div class="metadata-item" *ngIf="message.metadata.processingTime">
+                      <mat-icon>schedule</mat-icon>
+                      {{ message.metadata.processingTime }}ms
+                    </div>
+                  </div>
+                </div>
+                <div class="message-time">
+                  {{ message.createdAt | date:'short' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div *ngIf="isSendingMessage" class="message assistant-message typing-indicator">
+            <div class="message-avatar">
+              <mat-icon>smart_toy</mat-icon>
+            </div>
+            <div class="message-content">
+              <div class="message-bubble assistant-bubble typing-bubble">
+                <div class="typing-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <p class="typing-text">AI is thinking...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-container">
+          <mat-form-field appearance="outline" class="message-input-field">
+            <mat-label>Ask a question about your documents...</mat-label>
+            <textarea 
+              matInput
+              [(ngModel)]="messageText"
+              (keydown)="onKeyPress($event)"
+              [disabled]="isSendingMessage"
+              placeholder="Type your question here..."
+              rows="2"
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="2"
+              cdkAutosizeMaxRows="4">
+            </textarea>
+          </mat-form-field>
+          
+          <button 
+            mat-fab 
+            color="primary" 
+            class="send-button"
+            (click)="sendMessage()"
+            [disabled]="!messageText.trim() || isSendingMessage"
+            matTooltip="Send Message">
+            <mat-icon>{{ isSendingMessage ? 'hourglass_empty' : 'send' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Welcome Screen -->
+      <div class="welcome-screen" *ngIf="!selectedConversation">
+        <div class="welcome-content">
+          <mat-icon class="welcome-icon">forum</mat-icon>
+          <h2>Welcome to Q&A</h2>
+          <p>Select a conversation from the sidebar or create a new one to start asking questions about your documents.</p>
+          
+          <div class="welcome-features">
+            <div class="feature-item">
+              <mat-icon>auto_awesome</mat-icon>
+              <div>
+                <h4>AI-Powered Answers</h4>
+                <p>Get intelligent responses based on your uploaded documents</p>
+              </div>
+            </div>
+            
+            <div class="feature-item">
+              <mat-icon>library_books</mat-icon>
+              <div>
+                <h4>Document References</h4>
+                <p>See which documents were used to generate each answer</p>
+              </div>
+            </div>
+            
+            <div class="feature-item">
+              <mat-icon>history</mat-icon>
+              <div>
+                <h4>Conversation History</h4>
+                <p>Keep track of all your questions and answers</p>
+              </div>
+            </div>
+          </div>
+          
+          <button mat-raised-button color="primary" (click)="createNewConversation()" class="welcome-cta">
+            <mat-icon>add</mat-icon>
+            Start Your First Conversation
+          </button>
+        </div>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
