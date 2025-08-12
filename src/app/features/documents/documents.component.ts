@@ -13,12 +13,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 import { DocumentService } from '../../core/services/document.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Document, DocumentStatus, DocumentsResponse } from '../../core/models/document.model';
+import { Document, DocumentListResponse, DocumentStatus, DocumentsResponse } from '../../core/models/document.model';
 import { UserRole } from '../../core/models/user.model';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -41,13 +42,14 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
     MatMenuModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatTooltipModule,
     LoadingSpinnerComponent
   ],
   templateUrl: './documents.component.html',
   styleUrls: ['./documents.component.scss']
 })
 export class DocumentsComponent implements OnInit {
-  displayedColumns: string[] = ['fileName', 'fileSize', 'mimeType', 'status', 'createdAt', 'actions'];
+  displayedColumns: string[] = ['fileName', 'fileSize', 'mimeType', 'createdAt', 'actions'];
   documents: Document[] = [];
   filteredDocuments: Document[] = [];
   isLoading = false;
@@ -87,8 +89,9 @@ export class DocumentsComponent implements OnInit {
   loadDocuments(): void {
     this.isLoading = true;
     this.documentService.getDocuments().subscribe({
-      next: (response: DocumentsResponse) => {
-        this.documents = response.documents;
+      next: (documentResp: DocumentListResponse) => {
+        this.documents = documentResp?.documents || [];
+        this.updateMimeTypeOptions();
         this.applyFilters();
         this.isLoading = false;
       },
@@ -105,13 +108,31 @@ export class DocumentsComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredDocuments = this.documents.filter(document => {
-      const matchesSearch = !this.searchTerm || 
-        document.filename.toLowerCase().includes(this.searchTerm.toLowerCase());
+      // Enhanced search functionality - search across multiple fields
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      const matchesSearch = !searchLower || 
+        (document.filename && document.filename.toLowerCase().includes(searchLower)) ||
+        (document.originalName && document.originalName.toLowerCase().includes(searchLower)) ||
+        (document.title && document.title.toLowerCase().includes(searchLower)) ||
+        (document.description && document.description.toLowerCase().includes(searchLower)) ||
+        (document.user && document.user.name && document.user.name.toLowerCase().includes(searchLower));
       
-      const matchesStatus = this.selectedStatus === 'ALL' || document.status === this.selectedStatus;
-      const matchesMimeType = this.selectedMimeType === 'ALL' || document.mimetype === this.selectedMimeType;
+      // Status filter
+      const matchesStatus = this.selectedStatus === 'ALL' || 
+        (document.status && document.status === this.selectedStatus);
+      
+      // MIME type filter  
+      const matchesMimeType = this.selectedMimeType === 'ALL' || 
+        (document.mimetype && document.mimetype === this.selectedMimeType);
       
       return matchesSearch && matchesStatus && matchesMimeType;
+    });
+    
+    // Sort filtered results by creation date (newest first)
+    this.filteredDocuments.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
     });
   }
 
@@ -125,6 +146,55 @@ export class DocumentsComponent implements OnInit {
 
   onMimeTypeFilterChange(): void {
     this.applyFilters();
+  }
+
+  updateMimeTypeOptions(): void {
+    // Get unique mime types from actual documents
+    const uniqueMimeTypes = [...new Set(
+      this.documents
+        .filter(doc => doc.mimetype)
+        .map(doc => doc.mimetype)
+    )];
+    
+    // Update mime type options with actual data
+    this.mimeTypeOptions = [
+      { value: 'ALL', label: 'All Types' },
+      ...uniqueMimeTypes.map(mimeType => ({
+        value: mimeType,
+        label: this.getMimeTypeLabel(mimeType)
+      }))
+    ];
+  }
+
+  getMimeTypeLabel(mimeType: string): string {
+    const mimeTypeMap: { [key: string]: string } = {
+      'application/pdf': 'PDF',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document (DOCX)',
+      'application/msword': 'Word Document (DOC)',
+      'text/plain': 'Text File (TXT)',
+      'image/jpeg': 'JPEG Image',
+      'image/png': 'PNG Image',
+      'image/gif': 'GIF Image',
+      'application/vnd.ms-excel': 'Excel Spreadsheet (XLS)',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet (XLSX)',
+      'application/vnd.ms-powerpoint': 'PowerPoint (PPT)',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint (PPTX)'
+    };
+    
+    return mimeTypeMap[mimeType] || mimeType.split('/')[1]?.toUpperCase() || 'Unknown';
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = 'ALL';
+    this.selectedMimeType = 'ALL';
+    this.applyFilters();
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm.trim() || 
+              this.selectedStatus !== 'ALL' || 
+              this.selectedMimeType !== 'ALL');
   }
 
   downloadDocument(document: Document): void {

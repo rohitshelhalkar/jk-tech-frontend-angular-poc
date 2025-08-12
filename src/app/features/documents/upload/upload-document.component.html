@@ -78,9 +78,9 @@
         <div 
           class="file-item" 
           *ngFor="let fileUpload of fileUploads; let i = index"
-          [class.uploading]="isUploading(fileUpload)"
-          [class.success]="isSuccess(fileUpload)"
-          [class.error]="isError(fileUpload)">
+          [class.uploading]="isFileUploading(fileUpload)"
+          [class.success]="isFileSuccess(fileUpload)"
+          [class.error]="isFileError(fileUpload)">
           
           <div class="file-info">
             <mat-icon class="file-icon">{{ getFileTypeIcon(fileUpload.file) }}</mat-icon>
@@ -89,7 +89,7 @@
               <div class="file-meta">
                 {{ formatFileSize(fileUpload.file.size) }} • {{ fileUpload.file.type }}
               </div>
-              <div class="file-error" *ngIf="isError(fileUpload) && fileUpload.error">
+              <div class="file-error" *ngIf="isFileError(fileUpload) && fileUpload.error">
                 {{ fileUpload.error }}
               </div>
             </div>
@@ -106,17 +106,17 @@
             <button 
               mat-icon-button 
               (click)="removeFile(i)"
-              [disabled]="isUploading(fileUpload)"
+              [disabled]="isFileUploading(fileUpload)"
               class="remove-button">
               <mat-icon>close</mat-icon>
             </button>
           </div>
           
           <!-- Progress bar -->
-          <div class="progress-container" *ngIf="showProgress(fileUpload)">
+          <div class="progress-container" *ngIf="showFileProgress(fileUpload)">
             <mat-progress-bar 
               [value]="fileUpload.progress"
-              [color]="isSuccess(fileUpload) ? 'accent' : 'primary'"
+              [color]="isFileSuccess(fileUpload) ? 'accent' : 'primary'"
               mode="determinate">
             </mat-progress-bar>
             <span class="progress-text">{{ fileUpload.progress }}%</span>

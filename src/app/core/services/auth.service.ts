@@ -8,6 +8,7 @@ import {
   LoginResponse, 
   RegisterRequest 
 } from '../models/user.model';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,9 +24,12 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    // Check token validity on service initialization
-    this.validateToken();
+  constructor(
+    private http: HttpClient,
+    private storageService: StorageService
+  ) {
+    // Initialize the auth state from localStorage
+    this.initializeAuthState();
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -53,6 +57,29 @@ export class AuthService {
     this.isLoggedInSubject.next(false);
   }
 
+  // Method to manually refresh auth state from storage (useful for debugging)
+  refreshAuthFromStorage(): void {
+    this.initializeAuthState();
+  }
+
+  // Method to check if we have valid session data
+  hasValidSession(): boolean {
+    return !!(this.getToken() && this.getUserFromStorage());
+  }
+
+  // Debug method to check storage state
+  debugAuthState(): void {
+    console.group('🔐 Authentication State Debug');
+    console.log('Token exists:', !!this.getToken());
+    console.log('Token value:', this.getToken()?.substring(0, 20) + '...');
+    console.log('User exists:', !!this.getUserFromStorage());
+    console.log('User value:', this.getUserFromStorage());
+    console.log('Current user subject:', this.currentUserSubject.value);
+    console.log('Is logged in subject:', this.isLoggedInSubject.value);
+    console.log('Has valid session:', this.hasValidSession());
+    console.groupEnd();
+  }
+
   getProfile(): Observable<User> {
     return this.http.get<User>(`${this.API_URL}${environment.apiEndpoints.auth.profile}`)
       .pipe(
@@ -73,16 +100,20 @@ export class AuthService {
 
   // Token management
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.storageService.getItem(this.TOKEN_KEY);
   }
 
   private setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    this.isLoggedInSubject.next(true);
+    if (this.storageService.setItem(this.TOKEN_KEY, token)) {
+      this.isLoggedInSubject.next(true);
+      console.log('Token stored successfully');
+    } else {
+      console.error('Failed to store token');
+    }
   }
 
   private removeToken(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+    this.storageService.removeItem(this.TOKEN_KEY);
   }
 
   // User management
@@ -91,17 +122,20 @@ export class AuthService {
   }
 
   private setUser(user: User): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-    this.currentUserSubject.next(user);
+    if (this.storageService.setObject(this.USER_KEY, user)) {
+      this.currentUserSubject.next(user);
+      console.log('User data stored successfully');
+    } else {
+      console.error('Failed to store user data');
+    }
   }
 
   private removeUser(): void {
-    localStorage.removeItem(this.USER_KEY);
+    this.storageService.removeItem(this.USER_KEY);
   }
 
   private getUserFromStorage(): User | null {
-    const userStr = localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    return this.storageService.getObject<User>(this.USER_KEY);
   }
 
   // Utility methods
@@ -127,11 +161,32 @@ export class AuthService {
 
   private loadUserProfile(): void {
     this.getProfile().subscribe({
-      error: () => {
-        // Token might be invalid, logout user
-        this.logout();
+      error: (error) => {
+        console.error('Failed to load user profile:', error);
+        // Only logout on authentication errors (401/403), not network errors
+        if (error.status === 401 || error.status === 403) {
+          this.logout();
+        }
       }
     });
+  }
+
+  private initializeAuthState(): void {
+    const token = this.getToken();
+    const user = this.getUserFromStorage();
+    
+    if (token && user) {
+      // We have both token and user, set the state and validate
+      this.currentUserSubject.next(user);
+      this.isLoggedInSubject.next(true);
+      this.validateToken();
+    } else if (token) {
+      // We have token but no user, try to load profile
+      this.loadUserProfile();
+    } else {
+      // No token, ensure we're logged out
+      this.logout();
+    }
   }
 
   private validateToken(): void {

@@ -17,26 +17,36 @@ export interface ConfirmDialogData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
   template: `
-    <div class="confirm-dialog">
-      <div class="dialog-header" [class]="'dialog-header-' + data.type">
-        <mat-icon [class]="'icon-' + data.type">
-          {{ getIcon() }}
-        </mat-icon>
-        <h2 mat-dialog-title>{{ data.title }}</h2>
+    <div class="confirm-dialog-container">
+      <div class="dialog-header" [ngClass]="'header-' + data.type">
+        <div class="icon-wrapper" [ngClass]="'icon-wrapper-' + data.type">
+          <mat-icon [ngClass]="'icon-' + data.type">
+            {{ getIcon() }}
+          </mat-icon>
+        </div>
+        <div class="header-content">
+          <h2 mat-dialog-title>{{ data.title }}</h2>
+        </div>
       </div>
       
-      <mat-dialog-content>
-        <p>{{ data.message }}</p>
+      <mat-dialog-content class="dialog-content">
+        <div class="message-content">
+          <p>{{ data.message }}</p>
+        </div>
       </mat-dialog-content>
       
-      <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">
+      <mat-dialog-actions class="dialog-actions">
+        <button 
+          mat-button 
+          (click)="onCancel()"
+          class="cancel-button">
           {{ data.cancelText || 'Cancel' }}
         </button>
         <button 
           mat-raised-button 
           [color]="getButtonColor()" 
           (click)="onConfirm()" 
+          [ngClass]="'confirm-button confirm-' + data.type"
           cdkFocusInitial>
           {{ data.confirmText || 'Confirm' }}
         </button>
@@ -44,55 +54,229 @@ export interface ConfirmDialogData {
     </div>
   `,
   styles: [`
-    .confirm-dialog {
-      min-width: 300px;
+    .confirm-dialog-container {
+      min-width: 420px;
+      max-width: 520px;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 6px 24px rgba(0, 0, 0, 0.1);
     }
     
     .dialog-header {
+      padding: 32px 32px 24px 32px;
       display: flex;
       align-items: center;
-      margin-bottom: 16px;
+      gap: 20px;
+      position: relative;
       
-      mat-icon {
-        margin-right: 12px;
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
+      &.header-danger {
+        background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        color: white;
+      }
+      
+      &.header-warning {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        color: white;
+      }
+      
+      &.header-info {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        color: white;
       }
       
       h2 {
         margin: 0;
+        font-weight: 600;
+        font-size: 20px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
     }
     
-    .icon-danger {
-      color: #f44336;
+    .icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      flex-shrink: 0;
+      
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: white;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
     }
     
-    .icon-warning {
-      color: #ff9800;
+    .header-content {
+      flex: 1;
     }
     
-    .icon-info {
-      color: #2196f3;
+    .dialog-content {
+      padding: 32px 32px 24px 32px;
+      background: #fafafa;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
     }
     
-    mat-dialog-content {
-      margin-bottom: 16px;
+    .message-content {
+      background: white;
+      padding: 24px 28px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      width: 100%;
       
       p {
         margin: 0;
-        line-height: 1.5;
+        line-height: 1.6;
+        font-size: 15px;
+        color: #444;
+        font-weight: 400;
       }
     }
     
-    mat-dialog-actions {
-      margin: 0 -24px -24px -24px;
-      padding: 16px 24px;
-      border-top: 1px solid #e0e0e0;
+    .dialog-actions {
+      padding: 24px 32px 32px 32px;
+      background: #f8f9fa;
+      border-top: 1px solid #e9ecef;
+      justify-content: flex-end;
+      gap: 16px;
+      margin: 0;
+    }
+    
+    .cancel-button {
+      color: #666;
+      font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      min-width: 100px;
       
-      button {
-        margin-left: 8px;
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        color: #333;
+      }
+    }
+    
+    .confirm-button {
+      min-width: 120px;
+      height: 44px;
+      font-weight: 600;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      text-transform: none;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+      
+      &.confirm-danger {
+        background: linear-gradient(135deg, #f44336, #d32f2f) !important;
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        
+        &:hover {
+          box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+        }
+      }
+      
+      &.confirm-warning {
+        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        
+        &:hover {
+          box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+        }
+      }
+      
+      &.confirm-info {
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        
+        &:hover {
+          box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+        }
+      }
+    }
+
+    // Responsive design
+    @media (max-width: 768px) {
+      .confirm-dialog-container {
+        min-width: 320px;
+        max-width: 90vw;
+      }
+      
+      .dialog-header {
+        padding: 24px 24px 20px 24px;
+        gap: 16px;
+        
+        h2 {
+          font-size: 18px;
+        }
+      }
+      
+      .icon-wrapper {
+        width: 48px;
+        height: 48px;
+        
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+      
+      .dialog-content {
+        padding: 24px 24px 20px 24px;
+      }
+      
+      .message-content {
+        padding: 20px 20px;
+        
+        p {
+          font-size: 14px;
+        }
+      }
+      
+      .dialog-actions {
+        padding: 20px 24px 24px 24px;
+        flex-direction: column-reverse;
+        gap: 12px;
+        
+        button {
+          width: 100%;
+          justify-content: center;
+        }
+        
+        .confirm-button {
+          height: 48px;
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dialog-header {
+        padding: 20px 20px 16px 20px;
+      }
+      
+      .dialog-content {
+        padding: 20px 20px 16px 20px;
+      }
+      
+      .message-content {
+        padding: 16px;
+      }
+      
+      .dialog-actions {
+        padding: 16px 20px 20px 20px;
       }
     }
   `]

@@ -27,7 +27,7 @@ export class UserService {
   }
 
   createUser(userData: CreateUserRequest): Observable<User> {
-    return this.http.post<User>(this.API_URL, userData)
+    return this.http.post<User>(environment.apiUrl + environment.apiEndpoints.auth.register, userData)
       .pipe(catchError(this.handleError));
   }
 

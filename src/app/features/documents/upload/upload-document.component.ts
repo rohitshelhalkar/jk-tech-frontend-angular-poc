@@ -134,7 +134,7 @@ export class UploadDocumentComponent {
   }
 
   removeFile(index: number): void {
-    if (this.fileUploads[index].status === 'uploading') {
+    if (this.isFileUploading(this.fileUploads[index])) {
       return; // Cannot remove files that are currently uploading
     }
     this.fileUploads.splice(index, 1);
@@ -284,19 +284,19 @@ export class UploadDocumentComponent {
     return this.fileUploads.some(f => f.status === 'success' || f.status === 'error');
   }
 
-  isUploading(fileUpload: FileUpload): boolean {
+  isFileUploading(fileUpload: FileUpload): boolean {
     return fileUpload.status === 'uploading';
   }
 
-  isSuccess(fileUpload: FileUpload): boolean {
+  isFileSuccess(fileUpload: FileUpload): boolean {
     return fileUpload.status === 'success';
   }
 
-  isError(fileUpload: FileUpload): boolean {
+  isFileError(fileUpload: FileUpload): boolean {
     return fileUpload.status === 'error';
   }
 
-  showProgress(fileUpload: FileUpload): boolean {
+  showFileProgress(fileUpload: FileUpload): boolean {
     return fileUpload.status === 'uploading' || fileUpload.status === 'success';
   }
 

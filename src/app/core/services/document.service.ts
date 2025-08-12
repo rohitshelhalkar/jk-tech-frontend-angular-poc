@@ -7,7 +7,8 @@ import {
   DocumentsResponse, 
   CreateDocumentRequest, 
   UpdateDocumentRequest, 
-  PaginationQuery 
+  PaginationQuery, 
+  DocumentListResponse
 } from '../models/document.model';
 
 @Injectable({
@@ -18,12 +19,12 @@ export class DocumentService {
 
   constructor(private http: HttpClient) {}
 
-  getDocuments(query?: PaginationQuery): Observable<DocumentsResponse> {
+  getDocuments(query?: PaginationQuery): Observable<DocumentListResponse> {
     let params = new HttpParams();
     if (query?.page) params = params.set('page', query.page.toString());
     if (query?.limit) params = params.set('limit', query.limit.toString());
 
-    return this.http.get<DocumentsResponse>(this.API_URL, { params })
+    return this.http.get<DocumentListResponse>(this.API_URL, { params })
       .pipe(catchError(this.handleError));
   }
 

@@ -106,7 +106,7 @@
         <div *ngIf="recentDocuments.length > 0" class="document-list">
           <div class="document-item" *ngFor="let document of recentDocuments">
             <div class="document-info">
-              <mat-icon class="document-icon">{{ document.mimetype?.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
+              <mat-icon class="document-icon">{{ document.mimetype.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
               <div class="document-details">
                 <div class="document-name">{{ document.filename }}</div>
                 <div class="document-meta">
@@ -115,8 +115,8 @@
               </div>
             </div>
             <div class="document-status">
-              <span [class]="'status-badge status-' + document.status.toLowerCase()">
-                {{ document.status }}
+              <span [class]="'status-badge status-' + (document.status || 'unknown').toLowerCase()">
+                {{ document.status || 'Unknown' }}
               </span>
             </div>
           </div>

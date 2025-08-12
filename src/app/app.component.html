@@ -1,7 +1,7 @@
 <div class="app-container" [class.is-mobile]="isHandset$ | async">
   
   <!-- Header Toolbar -->
-  <mat-toolbar color="primary" class="app-header">
+  <mat-toolbar *ngIf="isLoggedIn$ | async" color="primary" class="app-header">
     <button 
       *ngIf="showSidenav && (isLoggedIn$ | async)"
       type="button" 
@@ -16,33 +16,76 @@
     <div class="spacer"></div>
     
     <!-- User Menu -->
-    <div *ngIf="isLoggedIn$ | async; else loginButton" class="user-menu">
-      <button mat-icon-button [matMenuTriggerFor]="userMenu">
-        <mat-icon>account_circle</mat-icon>
+    <div *ngIf="isLoggedIn$ | async" class="user-menu">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-avatar-button">
+        <div class="user-avatar">
+          <mat-icon>account_circle</mat-icon>
+        </div>
       </button>
       
-      <mat-menu #userMenu="matMenu">
-        <div class="user-info" *ngIf="currentUser$ | async as user">
-          <div class="user-name">{{ user.name }}</div>
-          <div class="user-email">{{ user.email }}</div>
-          <div class="user-role">
-            <span [class]="getUserRoleClass(user.role)">{{ user.role }}</span>
+      <mat-menu #userMenu="matMenu" class="user-menu-container" xPosition="before" yPosition="below">
+        <div class="user-menu-content" (click)="$event.stopPropagation()">
+          <!-- User Profile Section -->
+          <div class="user-profile-section" *ngIf="currentUser$ | async as user">
+            <div class="user-avatar-large">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ user.name }}</div>
+              <div class="user-email">{{ user.email }}</div>
+              <div class="user-role">
+                <span [class]="getUserRoleClass(user.role)">{{ user.role }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <mat-divider class="menu-divider"></mat-divider>
+          
+          <!-- Menu Items Section -->
+          <div class="menu-items-section">
+            <button mat-menu-item class="custom-menu-item">
+              <mat-icon class="menu-icon">person</mat-icon>
+              <span class="menu-label">Profile</span>
+            </button>
+            
+            <button mat-menu-item class="custom-menu-item">
+              <mat-icon class="menu-icon">extension</mat-icon>
+              <span class="menu-label">Integrations</span>
+            </button>
+            
+            <button mat-menu-item class="custom-menu-item">
+              <mat-icon class="menu-icon">settings</mat-icon>
+              <span class="menu-label">Settings</span>
+            </button>
+          </div>
+          
+          <mat-divider class="menu-divider"></mat-divider>
+          
+          <!-- Support Section -->
+          <div class="menu-items-section">
+            <button mat-menu-item class="custom-menu-item">
+              <mat-icon class="menu-icon">description</mat-icon>
+              <span class="menu-label">Guide</span>
+            </button>
+            
+            <button mat-menu-item class="custom-menu-item">
+              <mat-icon class="menu-icon">help</mat-icon>
+              <span class="menu-label">Help Center</span>
+            </button>
+          </div>
+          
+          <mat-divider class="menu-divider"></mat-divider>
+          
+          <!-- Logout Section -->
+          <div class="menu-items-section">
+            <button mat-menu-item class="custom-menu-item logout-item" (click)="logout()">
+              <mat-icon class="menu-icon">logout</mat-icon>
+              <span class="menu-label">Logout</span>
+            </button>
           </div>
         </div>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Logout</span>
-        </button>
       </mat-menu>
     </div>
-    
-    <ng-template #loginButton>
-      <button mat-button routerLink="/auth/login">
-        <mat-icon>login</mat-icon>
-        Login
-      </button>
-    </ng-template>
   </mat-toolbar>
 
   <!-- Sidenav Container -->
@@ -61,12 +104,17 @@
              [routerLink]="item.path" 
              routerLinkActive="active-link"
              [style.display]="canShowMenuItem(item, user) ? 'block' : 'none'"
-             (click)="closeDrawerOnMobile()">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            <div matListItemTitle>{{ item.label }}</div>
+             (click)="closeDrawerOnMobile()"
+             class="centered-menu-item">
+            <span class="menu-item-content">
+              <mat-icon matListIcon>{{ item.icon }}</mat-icon>
+              <span class="menu-item-label">{{ item.label }}</span>
+            </span>
           </a>
         </ng-container>
       </mat-nav-list>
+
+      
     </mat-sidenav>
     
     <mat-sidenav-content class="main-content">

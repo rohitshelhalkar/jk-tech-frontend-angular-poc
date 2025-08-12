@@ -1,6 +1,5 @@
 export enum IngestionStatus {
   PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED'
 }
@@ -46,5 +45,5 @@ export interface IngestionJobsResponse {
 export interface IngestionJobsQuery {
   page?: number;
   limit?: number;
-  status?: IngestionStatus;
+  status?: IngestionStatus | 'ALL';
 }

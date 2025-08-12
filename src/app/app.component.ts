@@ -12,6 +12,7 @@ import { Observable, filter, map } from 'rxjs';
 
 import { AuthService } from './core/services/auth.service';
 import { User, UserRole } from './core/models/user.model';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -67,6 +68,13 @@ export class AppComponent implements OnInit {
     ).subscribe(url => {
       this.showSidenav = !url.includes('/auth');
     });
+
+    // Expose debug function globally for development
+    if (!environment.production) {
+      (window as any).debugAuth = () => this.authService.debugAuthState();
+      (window as any).refreshAuth = () => this.authService.refreshAuthFromStorage();
+      console.log('🔍 Debug functions available: debugAuth(), refreshAuth()');
+    }
   }
 
   closeDrawerOnMobile() {

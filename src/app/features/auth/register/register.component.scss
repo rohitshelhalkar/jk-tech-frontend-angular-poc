@@ -5,7 +5,7 @@
   justify-content: center;
   min-height: calc(100vh - 64px);
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
   gap: 20px;
 }
 
@@ -16,7 +16,7 @@
   border-radius: 16px;
   
   .mat-card-header {
-    background: linear-gradient(45deg, #673ab7, #9c27b0);
+    background: linear-gradient(45deg, #1976d2, #1565c0);
     color: white;
     margin: -24px -24px 24px -24px;
     padding: 24px;
@@ -80,7 +80,7 @@
 }
 
 .auth-link {
-  color: #673ab7;
+  color: #1976d2;
   text-decoration: none;
   font-weight: 500;
   
@@ -99,7 +99,7 @@
     .mat-card-title {
       display: flex;
       align-items: center;
-      color: #673ab7;
+      color: #1976d2;
       
       mat-icon {
         margin-right: 8px;

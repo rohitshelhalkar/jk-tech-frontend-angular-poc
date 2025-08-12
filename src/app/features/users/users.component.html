@@ -7,10 +7,6 @@
         User Management
       </h1>
       <div class="header-actions">
-        <button mat-stroked-button (click)="exportUsers()" [disabled]="filteredUsers.length === 0">
-          <mat-icon>download</mat-icon>
-          Export
-        </button>
         <button mat-raised-button color="primary" (click)="openCreateUserDialog()">
           <mat-icon>person_add</mat-icon>
           Add User

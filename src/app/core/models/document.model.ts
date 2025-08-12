@@ -5,19 +5,23 @@ export enum DocumentStatus {
   FAILED = 'FAILED'
 }
 
+
+
 export interface Document {
   id: string;
   filename: string;
-  fileName: string; // alias for consistency
+  fileName?: string; // alias for consistency
   originalName: string;
   mimetype: string;
-  mimeType: string; // alias for consistency  
+  mimeType?: string; // alias for consistency  
   size: number;
-  fileSize: number; // alias for consistency
+  fileSize?: number; // alias for consistency
+  filePath: string;
   title: string;
   description?: string;
-  status: DocumentStatus;
+  status?: DocumentStatus;
   uploadedBy: string;
+  isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
   user: {
@@ -25,6 +29,18 @@ export interface Document {
     name: string;
     email: string;
   };
+}
+
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
+export interface DocumentListResponse {
+  documents: Document[];
+  pagination: Pagination;
 }
 
 export interface CreateDocumentRequest {

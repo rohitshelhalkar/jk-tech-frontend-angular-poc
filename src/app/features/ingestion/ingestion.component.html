@@ -1,0 +1,234 @@
+<div class="ingestion-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>sync</mat-icon>
+        Ingestion Jobs
+      </h1>
+      <p class="page-description">Monitor document processing and ingestion status</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="refreshJobs()" [disabled]="isLoading">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button mat-stroked-button (click)="exportJobsList()" [disabled]="ingestionJobs.length === 0">
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-cards">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon pending">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ getPendingJobsCount() }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon completed">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ getCompletedJobsCount() }}</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon failed">
+            <mat-icon>error</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ getFailedJobsCount() }}</div>
+            <div class="stat-label">Failed</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon total">
+            <mat-icon>list</mat-icon>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ totalJobs }}</div>
+            <div class="stat-label">Total Jobs</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-content">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Filter by Status</mat-label>
+          <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusFilterChange()">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>filter_list</mat-icon>
+        </mat-form-field>
+
+        <div class="filter-info">
+          <span class="results-count">{{ totalJobs }} total jobs</span>
+          <mat-icon class="polling-indicator" 
+                   matTooltip="Auto-refreshing every 5 seconds"
+                   [class.spinning]="true">
+            sync
+          </mat-icon>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Jobs Table -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
+        
+        <mat-table [dataSource]="ingestionJobs" class="jobs-table" *ngIf="!isLoading">
+          <!-- Document Column -->
+          <ng-container matColumnDef="document">
+            <mat-header-cell *matHeaderCellDef>Document</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="document-info">
+                <div class="document-name">{{ job.document.originalName }}</div>
+                <div class="document-meta">{{ job.document.filename }}</div>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="status-container">
+                <mat-chip [class]="getStatusClass(job.status)" [color]="getStatusColor(job.status)">
+                  <mat-icon class="status-icon">{{ getStatusIcon(job.status) }}</mat-icon>
+                  {{ job.status }}
+                </mat-chip>
+                <mat-progress-spinner 
+                  *ngIf="isJobInProgress(job.status)"
+                  diameter="20"
+                  mode="indeterminate"
+                  color="primary">
+                </mat-progress-spinner>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Duration Column -->
+          <ng-container matColumnDef="duration">
+            <mat-header-cell *matHeaderCellDef>Duration</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="duration-info">
+                {{ getJobDuration(job) }}
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Started At Column -->
+          <ng-container matColumnDef="startedAt">
+            <mat-header-cell *matHeaderCellDef>Started At</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="date-info">
+                {{ formatDate(job.startedAt) }}
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Completed At Column -->
+          <ng-container matColumnDef="completedAt">
+            <mat-header-cell *matHeaderCellDef>Completed At</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="date-info">
+                {{ formatDate(job.completedAt) }}
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- User Column -->
+          <ng-container matColumnDef="user">
+            <mat-header-cell *matHeaderCellDef>User</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="user-info">
+                <div class="user-name">{{ job.user.name }}</div>
+                <div class="user-email">{{ job.user.email }}</div>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-cell *matCellDef="let job">
+              <div class="actions-container">
+                <button mat-icon-button 
+                        matTooltip="View Job Details"
+                        color="primary">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        *ngIf="job.errorMessage"
+                        [matTooltip]="job.errorMessage"
+                        color="warn">
+                  <mat-icon>error_outline</mat-icon>
+                </button>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;" 
+                   [class.completed-row]="row.status === IngestionStatus.COMPLETED"
+                   [class.failed-row]="row.status === IngestionStatus.FAILED"
+                   [class.pending-row]="row.status === IngestionStatus.PENDING">
+          </mat-row>
+        </mat-table>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!isLoading && ingestionJobs.length === 0">
+          <mat-icon class="empty-icon">sync</mat-icon>
+          <h3>No Ingestion Jobs Found</h3>
+          <p>{{ selectedStatus === 'ALL' ? 'No ingestion jobs have been created yet.' : 'No jobs found for the selected status filter.' }}</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator 
+        *ngIf="!isLoading && ingestionJobs.length > 0"
+        [length]="totalJobs"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

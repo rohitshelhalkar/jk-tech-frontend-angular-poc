@@ -1,12 +1,23 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
 
-// Custom theme colors
-$primary-color: #673ab7;
-$accent-color: #4caf50;
+html, body { 
+  height: 100%; 
+  background-color: #fafafa;
+}
+body { 
+  margin: 0; 
+  font-family: 'Roboto', "Helvetica Neue", sans-serif; 
+}
+
+// Custom theme colors - Better modern palette
+$primary-color: #1976d2;
+$accent-color: #ff4081;
 $warn-color: #f44336;
+$success-color: #4caf50;
+$surface-color: #ffffff;
+$background-color: #fafafa;
 
 // Global styles
 .full-width {

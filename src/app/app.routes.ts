@@ -33,6 +33,11 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard]
   },
   {
+    path: 'ingestion',
+    loadComponent: () => import('./features/ingestion/ingestion.component').then(m => m.IngestionComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: '/dashboard'
   }

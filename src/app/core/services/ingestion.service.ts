@@ -66,8 +66,6 @@ export class IngestionService {
   getStatusColor(status: IngestionStatus): string {
     switch (status) {
       case IngestionStatus.PENDING:
-        return 'warn';
-      case IngestionStatus.PROCESSING:
         return 'primary';
       case IngestionStatus.COMPLETED:
         return 'accent';
@@ -82,8 +80,6 @@ export class IngestionService {
     switch (status) {
       case IngestionStatus.PENDING:
         return 'schedule';
-      case IngestionStatus.PROCESSING:
-        return 'sync';
       case IngestionStatus.COMPLETED:
         return 'check_circle';
       case IngestionStatus.FAILED:
@@ -98,7 +94,7 @@ export class IngestionService {
   }
 
   isJobInProgress(status: IngestionStatus): boolean {
-    return status === IngestionStatus.PENDING || status === IngestionStatus.PROCESSING;
+    return status === IngestionStatus.PENDING;
   }
 
   isJobCompleted(status: IngestionStatus): boolean {

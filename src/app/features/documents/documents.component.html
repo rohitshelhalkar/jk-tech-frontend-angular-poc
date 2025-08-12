@@ -7,10 +7,6 @@
         My Documents
       </h1>
       <div class="header-actions">
-        <button mat-stroked-button (click)="exportDocumentsList()" [disabled]="filteredDocuments.length === 0">
-          <mat-icon>download</mat-icon>
-          Export
-        </button>
         <button mat-raised-button color="primary" routerLink="/documents/upload" *ngIf="canManageDocuments()">
           <mat-icon>upload_file</mat-icon>
           Upload Documents
@@ -25,7 +21,7 @@
       <div class="filters-container">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>Search documents</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search by filename">
+          <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search by filename, title, description, or uploader">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         
@@ -49,6 +45,12 @@
         
         <div class="results-info">
           <span class="results-count">{{ filteredDocuments.length }} of {{ documents.length }} documents</span>
+          <button mat-icon-button 
+                  matTooltip="Clear all filters" 
+                  (click)="clearFilters()" 
+                  *ngIf="hasActiveFilters()">
+            <mat-icon>clear</mat-icon>
+          </button>
         </div>
       </div>
     </mat-card-content>
@@ -85,10 +87,10 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header>File Name</th>
             <td mat-cell *matCellDef="let document">
               <div class="file-info">
-                <mat-icon class="file-icon">{{ getMimeTypeIcon(document.mimeType) }}</mat-icon>
+                <mat-icon class="file-icon">{{ getMimeTypeIcon(document.mimetype) }}</mat-icon>
                 <div class="file-details">
-                  <div class="file-name" [title]="document.fileName">{{ document.fileName }}</div>
-                  <div class="file-id">ID: {{ document.id.slice(0, 8) }}...</div>
+                  <div class="file-name" [title]="document.originalName">{{ document.originalName }}</div>
+                  <div class="file-id">{{ document.title }}</div>
                 </div>
               </div>
             </td>
@@ -98,7 +100,7 @@
           <ng-container matColumnDef="fileSize">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
             <td mat-cell *matCellDef="let document">
-              {{ formatFileSize(document.fileSize) }}
+              {{ formatFileSize(document.size) }}
             </td>
           </ng-container>
 
@@ -107,20 +109,11 @@
             <th mat-header-cell *matHeaderCellDef>Type</th>
             <td mat-cell *matCellDef="let document">
               <div class="mime-type-cell">
-                <span class="mime-type-label">{{ document.mimeType.split('/')[1]?.toUpperCase() || 'UNKNOWN' }}</span>
+                <span class="mime-type-label">{{ document.mimetype.split('/')[1]?.toUpperCase() || 'UNKNOWN' }}</span>
               </div>
             </td>
           </ng-container>
 
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-            <td mat-cell *matCellDef="let document">
-              <mat-chip [color]="getStatusChipColor(document.status)" selected>
-                {{ document.status | titlecase }}
-              </mat-chip>
-            </td>
-          </ng-container>
 
           <!-- Created At Column -->
           <ng-container matColumnDef="createdAt">
@@ -171,35 +164,4 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Document Statistics -->
-  <div class="stats-section" *ngIf="documents.length > 0">
-    <mat-card class="stats-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>analytics</mat-icon>
-          Document Statistics
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-value">{{ documents.length }}</div>
-            <div class="stat-label">Total Documents</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ getProcessedCount() }}</div>
-            <div class="stat-label">Processed</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ getProcessingCount() }}</div>
-            <div class="stat-label">Processing</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ getTotalSize() }}</div>
-            <div class="stat-label">Total Size</div>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
 </div>

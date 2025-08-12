@@ -11,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { DocumentService } from '../../core/services/document.service';
 import { IngestionService } from '../../core/services/ingestion.service';
 import { User, UserRole } from '../../core/models/user.model';
-import { Document, DocumentsResponse } from '../../core/models/document.model';
+import { Document, DocumentListResponse, DocumentsResponse } from '../../core/models/document.model';
 import { IngestionJob, IngestionJobsResponse, IngestionStatus } from '../../core/models/ingestion.model';
 import { Observable } from 'rxjs';
 
@@ -94,9 +94,9 @@ export class DashboardComponent implements OnInit {
   private loadDashboardData(): void {
     // Load dashboard statistics
     this.documentService.getDocuments().subscribe({
-      next: (response: DocumentsResponse) => {
-        this.totalDocuments = response.documents.length;
-        this.recentDocuments = response.documents
+      next: (documentResp: DocumentListResponse) => {
+        this.totalDocuments = documentResp?.documents.length;
+        this.recentDocuments = documentResp?.documents
           .sort((a: Document, b: Document) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 5);
       },
@@ -108,7 +108,7 @@ export class DashboardComponent implements OnInit {
     this.ingestionService.getIngestionJobs().subscribe({
       next: (response: IngestionJobsResponse) => {
         this.activeIngestionJobs = response.jobs.filter((job: IngestionJob) => 
-          job.status === IngestionStatus.PROCESSING || job.status === IngestionStatus.PENDING
+          job.status === IngestionStatus.PENDING
         ).slice(0, 3);
       },
       error: (error) => {
@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit {
       greeting = 'Good evening';
     }
     
-    return `${greeting}, ${currentUser.name}`;
+    return `${greeting}, ${currentUser.name || currentUser.email || 'User'}!`;
   }
 
   getRoleDisplayName(role: UserRole): string {
@@ -160,8 +160,6 @@ export class DashboardComponent implements OnInit {
   getProgressBarValue(job: IngestionJob): number {
     switch (job.status) {
       case IngestionStatus.PENDING:
-        return 0;
-      case IngestionStatus.PROCESSING:
         return 50;
       case IngestionStatus.COMPLETED:
         return 100;
@@ -174,7 +172,7 @@ export class DashboardComponent implements OnInit {
 
   getProgressBarColor(job: IngestionJob): string {
     switch (job.status) {
-      case IngestionStatus.PROCESSING:
+      case IngestionStatus.PENDING:
         return 'primary';
       case IngestionStatus.COMPLETED:
         return 'accent';
