@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-/// <reference types="cypress-file-upload" />
 
 declare global {
   namespace Cypress {
@@ -58,9 +57,9 @@ Cypress.Commands.add('login', (email: string, password: string) => {
 // Login as specific role
 Cypress.Commands.add('loginAs', (role: 'admin' | 'editor' | 'viewer') => {
   const credentials = {
-    admin: { email: 'admin@example.com', password: 'Admin1234$' },
-    editor: { email: 'editor@example.com', password: 'Editor1234$' },
-    viewer: { email: 'viewer@example.com', password: 'Viewer1234$' }
+    admin: { email: 'admin@example.com', password: 'password123' },
+    editor: { email: 'editor@example.com', password: 'password123' },
+    viewer: { email: 'viewer@example.com', password: 'password123' }
   };
   
   const { email, password } = credentials[role];
@@ -101,3 +100,5 @@ Cypress.Commands.add('uploadFile', (selector: string, fileName: string) => {
     });
   });
 });
+
+export {};
