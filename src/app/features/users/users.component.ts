@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { UserService } from '../../core/services/user.service';
 import { User, UserRole } from '../../core/models/user.model';
@@ -39,13 +40,14 @@ import { UserDialogComponent } from './user-dialog/user-dialog.component';
     MatPaginatorModule,
     MatSortModule,
     MatMenuModule,
+    MatDividerModule,
     LoadingSpinnerComponent
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
-  displayedColumns: string[] = ['name', 'email', 'role', 'createdAt', 'actions'];
+  displayedColumns: string[] = ['name', 'email', 'role', 'status', 'createdAt', 'actions'];
   users: User[] = [];
   filteredUsers: User[] = [];
   isLoading = false;
@@ -237,6 +239,53 @@ export class UsersComponent implements OnInit {
     }
   }
 
+  toggleUserStatus(user: User): void {
+    const newStatus = !user.active;
+    const action = newStatus ? 'activate' : 'deactivate';
+    
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+        message: `Are you sure you want to ${action} user "${user.name}"?`,
+        type: newStatus ? 'primary' : 'warn'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.userService.updateUser(user.id, { active: newStatus }).subscribe({
+          next: (updatedUser) => {
+            const index = this.users.findIndex(u => u.id === user.id);
+            if (index !== -1) {
+              this.users[index] = updatedUser;
+              this.applyFilters();
+            }
+            this.snackBar.open(`User ${action}d successfully`, 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          },
+          error: (error) => {
+            console.error(`Failed to ${action} user:`, error);
+            this.snackBar.open(`Failed to ${action} user`, 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      }
+    });
+  }
+
+  getStatusDisplayName(active: boolean): string {
+    return active ? 'Active' : 'Inactive';
+  }
+
+  getStatusChipColor(active: boolean): string {
+    return active ? 'primary' : 'warn';
+  }
+
   exportUsers(): void {
     const csvContent = this.generateCSV();
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -251,7 +300,7 @@ export class UsersComponent implements OnInit {
   }
 
   private generateCSV(): string {
-    const headers = ['Name', 'Email', 'Role', 'Created At'];
+    const headers = ['Name', 'Email', 'Role', 'Status', 'Created At'];
     const csvRows = [headers.join(',')];
     
     this.filteredUsers.forEach(user => {
@@ -259,6 +308,7 @@ export class UsersComponent implements OnInit {
         user.name,
         user.email,
         this.getRoleDisplayName(user.role),
+        this.getStatusDisplayName(user.active),
         new Date(user.createdAt).toLocaleDateString()
       ];
       csvRows.push(row.join(','));

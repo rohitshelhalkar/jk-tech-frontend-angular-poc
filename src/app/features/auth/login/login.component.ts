@@ -77,6 +77,25 @@ export class LoginComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           console.error('Login failed:', error);
+          
+          let errorMessage = 'Login failed. Please try again.';
+          
+          if (error.status === 401) {
+            if (error.error?.message?.includes('deactivated')) {
+              errorMessage = 'Your account has been deactivated. Please contact the administrator.';
+            } else {
+              errorMessage = 'Invalid email or password.';
+            }
+          } else if (error.status === 0) {
+            errorMessage = 'Unable to connect to server. Please check your connection.';
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          }
+          
+          this.snackBar.open(errorMessage, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     } else {
