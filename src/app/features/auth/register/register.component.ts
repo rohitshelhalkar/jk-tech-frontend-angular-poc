@@ -88,6 +88,29 @@ export class RegisterComponent {
         error: (error) => {
           this.isLoading = false;
           console.error('Registration failed:', error);
+          
+          let errorMessage = 'Registration failed. Please try again.';
+          
+          if (error.status === 409) {
+            errorMessage = 'User with this email already exists. Please use a different email.';
+          } else if (error.status === 400) {
+            if (error.error?.message?.includes('email')) {
+              errorMessage = 'Please provide a valid email address.';
+            } else if (error.error?.message?.includes('password')) {
+              errorMessage = 'Password must be at least 6 characters long.';
+            } else if (error.error?.message) {
+              errorMessage = error.error.message;
+            }
+          } else if (error.status === 0) {
+            errorMessage = 'Unable to connect to server. Please check your connection.';
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          }
+          
+          this.snackBar.open(errorMessage, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     } else {
