@@ -384,7 +384,7 @@
 
 .auth-actions {
   text-align: center;
-  padding: 16px 24px;
+  padding: 36px;
   border-top: 1px solid #e0e0e0;
   margin: 16px -24px -24px -24px;
 }
@@ -472,15 +472,18 @@
 @media (max-width: 767px) {
   .auth-container {
     flex-direction: column;
-    position: fixed;
-    height: 100vh;
+    position: relative;
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden;
     overflow-y: auto;
   }
   
   .welcome-section {
     flex: none;
-    padding: 24px 16px;
+    padding: 16px;
     min-height: auto;
+    max-height: 35vh;
     justify-content: center;
     
     .branding-content {
@@ -490,67 +493,49 @@
     
     .brand-logo {
       justify-content: center;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
       
       &::before {
         display: none;
       }
       
       .brand-icon {
-        font-size: 40px;
-        width: 40px;
-        height: 40px;
-        margin-right: 12px;
-        padding: 6px;
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        margin-right: 8px;
+        padding: 4px;
       }
       
       .brand-title {
-        font-size: 28px;
+        font-size: 22px;
       }
     }
     
     .welcome-title {
-      font-size: 24px;
+      font-size: 18px;
+      margin-bottom: 8px;
       
       &::after {
         left: 50%;
         transform: translateX(-50%);
+        width: 50px;
+        height: 2px;
       }
     }
     
     .welcome-description {
-      font-size: 15px;
-      margin-bottom: 24px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      line-height: 1.3;
     }
     
     .feature-highlights {
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    
-    .feature-item {
-      padding: 12px 16px;
-      
-      &:hover {
-        transform: none;
-      }
-      
-      mat-icon {
-        font-size: 22px;
-        width: 22px;
-        height: 22px;
-        padding: 4px;
-      }
-      
-      span {
-        font-size: 15px;
-      }
+      display: none; // Hide on mobile to save space
     }
     
     .role-info-section {
-      margin-top: 24px;
-      padding: 20px;
+      display: none; // Hide on mobile to save space - it's shown in the form dropdown
     }
   }
   
@@ -558,40 +543,68 @@
     flex: 1;
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 24px 16px;
+    padding: 16px;
     background: rgba(255, 255, 255, 0.08);
-    min-height: auto;
+    min-height: 65vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  
+  .register-container {
+    width: 100%;
+    max-width: 360px;
   }
   
   .auth-card {
     .mat-card-header {
-      padding: 24px 20px;
+      padding: 20px 16px;
       
       .auth-header {
         .auth-icon {
-          font-size: 32px;
-          width: 32px;
-          height: 32px;
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+          margin-bottom: 8px;
         }
         
         h2 {
-          font-size: 24px;
+          font-size: 20px;
+          margin-bottom: 4px;
         }
         
         .auth-subtitle {
-          font-size: 13px;
+          font-size: 12px;
         }
       }
     }
     
     .mat-card-content {
-      padding: 20px;
+      padding: 16px;
+    }
+  }
+  
+  .auth-form {
+    gap: 14px;
+  }
+  
+  .form-field-full-width {
+    .mat-mdc-form-field-wrapper {
+      .mat-mdc-form-field-flex {
+        min-height: 48px;
+      }
     }
   }
   
   .auth-button {
-    height: 48px;
-    font-size: 15px;
+    height: 44px;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  
+  .auth-actions {
+    padding: 16px;
+    margin: 8px -16px -16px -16px;
   }
 
   .role-item {
